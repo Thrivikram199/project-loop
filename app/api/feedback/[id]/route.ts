@@ -9,7 +9,7 @@ export async function DELETE(
 ) {
   const session = await auth();
 
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
     return Response.json(
       { error: "Access Denied" },
       { status: 403 }
