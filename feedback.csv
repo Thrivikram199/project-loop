@@ -1,0 +1,4 @@
+customer,message,sentiment,userId
+Alice,Excellent service,POSITIVE,cms1daowq0000mn9keu1pvh4t
+Bob,Delivery was late,NEGATIVE,cms1daowq0000mn9keu1pvh4t
+Charlie,Support was helpful,POSITIVE,cms1daowq0000mn9keu1pvh4t
