@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
 
@@ -16,9 +16,11 @@ export async function DELETE(
     );
   }
 
+  const { id } = await params;
+
   await prisma.feedback.delete({
     where: {
-      id: params.id,
+      id,
     },
   });
 
