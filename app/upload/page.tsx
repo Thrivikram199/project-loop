@@ -11,7 +11,7 @@ export default function UploadPage() {
 
     Papa.parse(file, {
       header: true,
-      complete: async (results: unknown) => {
+      complete: async (results: any) => {
         const response = await fetch("/api/upload", {
           method: "POST",
           headers: {
