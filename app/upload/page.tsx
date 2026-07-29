@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Papa from "papaparse";
+import * as Papa from "papaparse";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
