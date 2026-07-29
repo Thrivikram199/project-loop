@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import * as Papa from "papaparse";
-import type { ParseResult } from "papaparse";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -12,7 +11,7 @@ export default function UploadPage() {
 
     Papa.parse(file, {
       header: true,
-      complete: async (results: ParseResult<Record<string, string>>) => {
+      complete: async (results: Papa.ParseResult<Record<string, string>>) => {
         const response = await fetch("/api/upload", {
           method: "POST",
           headers: {
