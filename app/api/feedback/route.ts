@@ -3,13 +3,25 @@ import { prisma } from "@/lib/prisma";
 import { detectSentiment } from "@/utils/sentiment";
 
 export async function GET() {
-  const feedback = await prisma.feedback.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  try {
+    const feedback = await prisma.feedback.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  return NextResponse.json(feedback);
+    return NextResponse.json(feedback);
+  } catch (error) {
+    console.error("Feedback GET Error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: String(error),
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {

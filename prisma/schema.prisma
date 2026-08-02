@@ -18,13 +18,14 @@ model User {
 }
 
 model Feedback {
-  id        String    @id @default(cuid())
-  customer  String
-  message   String
-  sentiment Sentiment
-  createdAt DateTime  @default(now())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  id         String      @id @default(cuid())
+  customer   String
+  message    String
+  sentiment  Sentiment
+  theme      String      @default("General")
+  createdAt  DateTime    @default(now())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
 }
 
 enum Role {

@@ -1,4 +1,5 @@
 "use client";
+import { useTheme } from "@/context/ThemeContext";
 
 import {
   PieChart,
@@ -6,14 +7,12 @@ import {
   Cell,
   Tooltip,
   Legend,
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
 } from "recharts";
-
-const COLORS = ["#22c55e", "#ef4444", "#f59e0b"];
 
 type Props = {
   positive: number;
@@ -26,81 +25,100 @@ export default function Charts({
   negative,
   neutral,
 }: Props) {
-  const pieData = [
+  const data = [
     { name: "Positive", value: positive },
     { name: "Negative", value: negative },
     { name: "Neutral", value: neutral },
   ];
 
+  const COLORS = [
+    "#10b981",
+    "#ef4444",
+    "#f59e0b",
+  ];
+const { dark } = useTheme();
   return (
     <div
       style={{
-        display: "flex",
-        gap: "50px",
-        marginTop: "50px",
-        flexWrap: "wrap",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: "25px",
+        marginTop: "35px",
       }}
     >
       <div
         style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "12px",
-          boxShadow: "0 0 10px rgba(0,0,0,.1)",
+          background: dark
+  ? "#1e293b"
+  : "white",
+          padding: "25px",
+          borderRadius: "20px",
+          boxShadow: "0 15px 35px rgba(0,0,0,.08)",
         }}
       >
-        <h2>Sentiment Distribution</h2>
+        <h2
+          style={{
+            color: "#4f46e5",
+            marginBottom: "20px",
+          }}
+        >
+          Sentiment Distribution
+        </h2>
 
-        <PieChart width={350} height={300}>
-          <Pie
-            data={pieData}
-            dataKey="value"
-            outerRadius={100}
-            label
-          >
-            {pieData.map((_, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index]}
-              />
-            ))}
-          </Pie>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              outerRadius={100}
+              label
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={index}
+                  fill={COLORS[index]}
+                />
+              ))}
+            </Pie>
 
-          <Tooltip />
-          <Legend />
-        </PieChart>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
 
       <div
         style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "12px",
-          boxShadow: "0 0 10px rgba(0,0,0,.1)",
+          background: dark
+  ? "#1e293b"
+  : "white",
+          padding: "25px",
+          borderRadius: "20px",
+          boxShadow: "0 15px 35px rgba(0,0,0,.08)",
         }}
       >
-        <h2>Feedback Analytics</h2>
-
-        <BarChart
-          width={400}
-          height={300}
-          data={pieData}
+        <h2
+          style={{
+            color: "#4f46e5",
+            marginBottom: "20px",
+          }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          Feedback Analysis
+        </h2>
 
-          <XAxis dataKey="name" />
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={data}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
 
-          <YAxis />
-
-          <Tooltip />
-
-          <Legend />
-
-          <Bar
-            dataKey="value"
-            fill="#4f46e5"
-          />
-        </BarChart>
+            <Bar
+              dataKey="value"
+              fill="#6366f1"
+              radius={[8, 8, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

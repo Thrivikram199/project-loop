@@ -1,57 +1,32 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-import { auth } from "@/auth";
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-
-  if (!session?.user || (session.user as any).role !== "ADMIN") {
-    return Response.json(
-      { error: "Access Denied" },
-      { status: 403 }
-    );
-  }
-
-  const { id } = await params;
-
-  await prisma.feedback.delete({
-    where: {
-      id,
-    },
-  });
-
-  return Response.json({ message: "Deleted" });
-}
-
-export async function PUT(
+export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
 
-    const { customer, message, sentiment } =
-      await request.json();
-
-    const feedback = await prisma.feedback.update({
-      where: { id },
-      data: {
-        customer,
-        message,
-        sentiment,
+    const feedback = await prisma.feedback.findUnique({
+      where: {
+        id,
       },
     });
+
+    if (!feedback) {
+      return NextResponse.json(
+        { message: "Feedback not found" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(feedback);
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { message: "Update failed" },
+      { message: "Server Error" },
       { status: 500 }
     );
   }
