@@ -14,10 +14,19 @@ export default function AISummaryPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/ai-summary");
-      if (!res.ok) {
-  throw new Error("AI request failed");
-}
+     const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
+
+const res = await fetch("/api/ai-summary", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
 
       const data = await res.json();
 

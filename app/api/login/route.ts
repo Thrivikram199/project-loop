@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+export async function GET() {
+  return NextResponse.json({
+    message: "Login API is working",
+  });
+}
+
+
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
@@ -19,17 +26,25 @@ export async function POST(req: Request) {
       );
     }
 
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    console.log("Entered password:", password);
+console.log("Stored password:", user.password);
 
-    if (!passwordMatch) {
-      return NextResponse.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
+const passwordMatch = await bcrypt.compare(
+  password,
+  user.password
+);
+
+console.log("Password Match:", passwordMatch);
+
+if (!passwordMatch) {
+  return NextResponse.json(
+    {
+      message: "Invalid email or password",
+      match: passwordMatch,
+    },
+    { status: 401 }
+  );
+}
 
     return NextResponse.json({
       message: "Login Successful",

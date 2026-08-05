@@ -1,19 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
+
 
 
 export default function SettingsPage() {
 
-const {
-  dark,
-  setDark,
-} = useTheme();
+const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
   const [emailNotification, setEmailNotification] = useState(true);
   const [aiSuggestion, setAiSuggestion] = useState(true);
   const [weeklyReport, setWeeklyReport] = useState(false);
+  const [notifications, setNotifications] = useState(true);
 
+
+  function saveSettings() {
+  localStorage.setItem(
+    "projectSettings",
+    JSON.stringify({
+      dark,
+      notifications
+    })
+  );
+
+  alert("Settings saved successfully!");
+}
   
   return (
     <main
@@ -88,9 +105,8 @@ const {
           <input
             type="checkbox"
             checked={dark}
-            onChange={() =>
-              setDark(!dark)
-            }
+onChange={toggleTheme}
+            
           />
         </label>
       </div>
@@ -252,6 +268,7 @@ const {
         }}
       >
         <button
+  onClick={saveSettings}
           style={{
             background:
               "linear-gradient(90deg,#4f46e5,#6366f1)",

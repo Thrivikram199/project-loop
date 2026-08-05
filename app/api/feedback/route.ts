@@ -2,54 +2,52 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { detectSentiment } from "@/utils/sentiment";
 
-export async function GET() {
-  try {
-    const feedback = await prisma.feedback.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return NextResponse.json(feedback);
-  } catch (error) {
-    console.error("Feedback GET Error:", error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: String(error),
-      },
-      { status: 500 }
-    );
-  }
-}
-
 export async function POST(req: Request) {
   try {
-    const { customer, message, userId } = await req.json();
+    const body = await req.json();
 
-const sentiment = detectSentiment(message);
+    // Load feedback
+    if (body.action === "get") {
+      const feedback = await prisma.feedback.findMany({
+        where: {
+          userId: body.userId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return NextResponse.json(feedback);
+    }
+
+    // Add feedback
+    const { customer, message, userId } = body;
+
+    const sentiment = detectSentiment(message);
 
     const feedback = await prisma.feedback.create({
       data: {
         customer,
         message,
         sentiment,
+        theme: "General",
         userId,
       },
     });
 
-    return NextResponse.json(feedback, { status: 201 });
-  } 
-  
-  
-  
-  catch (error) {
+    return NextResponse.json(feedback, {
+      status: 201,
+    });
+  } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { message: "Failed to add feedback" },
-      { status: 500 }
+      {
+        message: "Failed to process feedback",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

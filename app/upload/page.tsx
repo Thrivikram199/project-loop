@@ -1,29 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import toast from "react-hot-toast";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
 
-  async function uploadCSV() {
-    if (!file) {
-      toast.error("Please select a CSV file.");
-      return;
-    }
+ async function uploadCSV(selectedFile?: File) {
+  const uploadFile = selectedFile || file;
 
+if (!uploadFile) {
+  fileInputRef.current?.click();
+  return;
+}
+
+  try {
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
+const formData = new FormData();
+
+formData.append("file", uploadFile);
+formData.append("userId", loggedUser.id);
     const res = await fetch("/api/upload", {
       method: "POST",
       body: formData,
     });
 
+    console.log("Status:", res.status);
+
     const data = await res.json();
+
+    console.log("Response:", data);
 
     setLoading(false);
 
@@ -32,8 +46,12 @@ export default function UploadPage() {
     } else {
       toast.error(data.message);
     }
+  } catch (err) {
+    console.error("UPLOAD ERROR:", err);
+    toast.error("Upload failed.");
+    setLoading(false);
   }
-
+}
   return (
     <main
       style={{
@@ -53,42 +71,93 @@ export default function UploadPage() {
           boxShadow: "0 15px 35px rgba(0,0,0,.08)",
         }}
       >
-        <h1 style={{ color: "#4f46e5" }}>
-          📤 Upload Feedback CSV
-        </h1>
+        <div
+  style={{
+    marginBottom: "30px",
+  }}
+>
+  <h1
+    style={{
+      fontSize: "34px",
+      fontWeight: "700",
+      color: "#4f46e5",
+      marginBottom: "10px",
+    }}
+  >
+    📤 Upload Customer Feedback
+  </h1>
 
-        <p>
-          Import customer feedback directly into the
-          database.
-        </p>
+  <p>
+   Import customer feedback directly into the database.
+   </p>
+</div>
 
-        <input
-          type="file"
-          accept=".csv"
-          onChange={(e) =>
-            setFile(e.target.files?.[0] || null)
-          }
-        />
+         <input
+  ref={fileInputRef}
+  type="file"
+  accept=".csv"
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const selectedFile = e.target.files?.[0] || null;
+    console.log("Selected:", selectedFile);
 
-        <br />
-        <br />
+    setFile(selectedFile);
+  }}
+/>
 
-        <button
-          onClick={uploadCSV}
-          disabled={loading}
-          style={{
-            background:
-              "linear-gradient(90deg,#4f46e5,#6366f1)",
-            color: "white",
-            border: "none",
-            padding: "14px 28px",
-            borderRadius: "10px",
-            cursor: "pointer",
-          }}
-        >
-          {loading ? "Uploading..." : "Upload CSV"}
-        </button>
-      </div>
+
+<button
+    type="button"
+    onClick={() => fileInputRef.current?.click()}
+    style={{
+      padding: "12px 20px",
+      borderRadius: "10px",
+      border: "none",
+      background: "#6366f1",
+      color: "white",
+      cursor: "pointer",
+    }}
+  >
+    📂 Choose CSV File
+  </button>
+ {file && (
+    <div
+      style={{
+        marginTop: "20px",
+        color: "#16a34a",
+        fontWeight: "bold",
+      }}
+    >
+      ✅ {file.name}
+    </div>
+  )}
+</div>
+
+<div
+  style={{
+    textAlign: "center",
+    marginTop: "35px",
+  }}
+>
+   <button
+    onClick={() => uploadCSV()}
+    disabled={loading}
+    style={{
+      width: "220px",
+      height: "58px",
+      borderRadius: "14px",
+      border: "none",
+      background: "linear-gradient(90deg,#4f46e5,#6366f1)",
+      color: "white",
+      fontSize: "18px",
+      fontWeight: "bold",
+      cursor: "pointer",
+      boxShadow: "0 10px 20px rgba(79,70,229,.3)",
+    }}
+  >
+    {loading ? "Uploading..." : "📤 Upload CSV"}
+  </button>
+</div>
     </main>
   );
 }

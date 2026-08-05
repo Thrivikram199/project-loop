@@ -1,7 +1,10 @@
+@import "tailwindcss";
+
 html,
 body {
   margin: 0;
   padding: 0;
+  min-height: 100%;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -9,13 +12,9 @@ body {
 
 * {
   box-sizing: border-box;
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease;
 }
 
 .dark {
-  background: #0f172a;
+  background-color: #0f172a;
   color: white;
 }

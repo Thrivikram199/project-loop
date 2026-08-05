@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 type Feedback = {
   id: string;
@@ -17,7 +17,13 @@ export default function FeedbackDetails({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { dark } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
 
   const [feedback, setFeedback] =
     useState<Feedback | null>(null);

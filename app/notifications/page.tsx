@@ -1,10 +1,15 @@
 "use client";
 
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 export default function NotificationsPage() {
-  const { dark } = useTheme();
+ const { theme, setTheme } = useTheme();
 
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
   const notifications = [
     {
       title: "New Feedback Received",

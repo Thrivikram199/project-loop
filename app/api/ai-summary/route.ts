@@ -1,114 +1,105 @@
-import { openai } from "@/lib/openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { withRetry } from "@/lib/aiRetry";
-import { SYSTEM_PROMPT } from "@/lib/prompts";
-import {
-  getCachedValue,
-  setCachedValue,
-} from "@/lib/aiCache";
 
-export async function GET() {
+export async function POST(req: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-  return NextResponse.json(
-    {
-      error: "OpenAI API key is not configured.",
-    },
-    {
-      status: 500,
-    }
-  );
-}
+    const { userId } = await req.json();
+
     const feedbacks = await prisma.feedback.findMany({
-      orderBy: {
-        createdAt: "desc",
+      where: {
+        userId,
       },
-      take: 20,
     });
 
     if (feedbacks.length === 0) {
       return NextResponse.json({
-        summary: "No feedback available.",
+        summary: "No customer feedback available.",
       });
     }
 
-    const feedbackText = feedbacks
-      .map(
-        (f) =>
-          `Customer: ${f.customer}
-Message: ${f.message}
-Sentiment: ${f.sentiment}`
-      )
-      .join("\n\n");
+    const positive = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "POSITIVE"
+    ).length;
 
-    const cacheKey = "ai-summary";
+    const negative = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEGATIVE"
+    ).length;
 
-const cached = getCachedValue(cacheKey);
+    const neutral = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEUTRAL"
+    ).length;
 
-if (cached) {
-  return NextResponse.json({
-    summary: cached,
-    cached: true,
-  });
-}
+    let summary = "";
 
-    const response = await withRetry(() => openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: `
-You are a business analyst.
+    if (positive >= negative && positive >= neutral) {
+      summary = `
+📊 Executive Summary
 
-Analyze the following customer feedback.
+Overall customer satisfaction is Positive.
 
-Return:
+Positive Feedback: ${positive}
+Neutral Feedback: ${neutral}
+Negative Feedback: ${negative}
 
-1. Overall customer satisfaction
-2. Most common issues
-3. Business recommendations
-4. Executive summary
+Customers generally appreciate the product.
 
-Feedback:
-
-${feedbackText}
-`,
-    })
-  );
-  const prompt = `
-${SYSTEM_PROMPT}
-
-Generate an executive summary using this feedback.
-
-Customer Feedback:
-
-${feedbackText}
+Recommendation:
+Continue maintaining quality and improve minor issues.
 `;
+    } else if (
+      negative >= positive &&
+      negative >= neutral
+    ) {
+      summary = `
+📊 Executive Summary
 
-    setCachedValue(
-  cacheKey,
-  response.output_text
-);
-console.log(
-  `[AI] ${new Date().toISOString()} - AI request completed`
-);
-return NextResponse.json({
-  summary: response.output_text,
-  cached: false,
-});
-  } catch (error) {
-  console.error(
-  `[AI ERROR] ${new Date().toISOString()}`,
-  error
-);
+Overall customer satisfaction is Negative.
 
-  return NextResponse.json(
-    {
-      success: false,
-      summary:
-        "Unable to generate AI summary at the moment. Please try again later.",
-    },
-    {
-      status: 500,
+Positive Feedback: ${positive}
+Neutral Feedback: ${neutral}
+Negative Feedback: ${negative}
+
+Main concerns:
+• Delivery delays
+• Customer support
+• Payment issues
+
+Recommendation:
+Improve customer service, logistics, and issue resolution.
+`;
+    } else {
+      summary = `
+📊 Executive Summary
+
+Overall customer satisfaction is Neutral.
+
+Positive Feedback: ${positive}
+Neutral Feedback: ${neutral}
+Negative Feedback: ${negative}
+
+Customers have mixed opinions.
+
+Recommendation:
+Focus on improving customer experience and reducing complaints.
+`;
     }
-  );
-}
+
+    return NextResponse.json({
+      summary,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        message: "Failed to generate summary",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }

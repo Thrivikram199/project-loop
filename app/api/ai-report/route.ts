@@ -1,103 +1,95 @@
-import { openai } from "@/lib/openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { withRetry } from "@/lib/aiRetry";
-import { SYSTEM_PROMPT } from "@/lib/prompts";
 
 export async function GET() {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-  return NextResponse.json(
-    {
-      error: "OpenAI API key is not configured.",
-    },
-    {
-      status: 500,
-    }
-  );
-}
-    const feedbacks = await prisma.feedback.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 50,
-    });
+    const feedbacks = await prisma.feedback.findMany();
 
-    if (feedbacks.length === 0) {
-      return NextResponse.json({
-        report: "No feedback available.",
-      });
-    }
+    const total = feedbacks.length;
 
-    const input = feedbacks
-      .map(
-        (f) =>
-          `Customer: ${f.customer}
-Message: ${f.message}
-Sentiment: ${f.sentiment}`
-      )
-      .join("\n\n");
+    const positive = feedbacks.filter(
+      (f) => f.sentiment === "POSITIVE"
+    ).length;
 
-   const response = await withRetry(() => openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: `
-Generate a professional executive report.
+    const negative = feedbacks.filter(
+      (f) => f.sentiment === "NEGATIVE"
+    ).length;
 
-Include:
+    const neutral = feedbacks.filter(
+      (f) => f.sentiment === "NEUTRAL"
+    ).length;
 
-1. Executive Summary
+    let report = `
+📄 AI Executive Report
 
-2. Positive Findings
+Total Feedback: ${total}
 
-3. Negative Findings
+Positive Feedback: ${positive}
 
-4. Customer Satisfaction
+Neutral Feedback: ${neutral}
 
-5. Business Risks
+Negative Feedback: ${negative}
 
-6. Recommendations
-
-7. Final Conclusion
-
-Feedback:
-
-${input}
-`,
-    })
-  );
-
-  const prompt = `
-${SYSTEM_PROMPT}
-
-Generate business recommendations.
-
-Customer Feedback:
-
-${feedbacks}
 `;
-  
-  console.log(
-  `[AI] ${new Date().toISOString()} - AI request completed`
-);
+
+    if (positive >= negative && positive >= neutral) {
+      report += `
+Overall Sentiment:
+Positive
+
+Key Findings:
+• Customers are satisfied with the product.
+• Product quality is appreciated.
+• Customer experience is improving.
+
+Recommendations:
+• Continue improving delivery.
+• Enhance customer support.
+• Introduce loyalty rewards.
+`;
+    } else if (negative >= positive && negative >= neutral) {
+      report += `
+Overall Sentiment:
+Negative
+
+Key Findings:
+• Customers report delivery delays.
+• Customer support needs improvement.
+• Payment issues are affecting satisfaction.
+
+Recommendations:
+• Improve logistics.
+• Increase support staff.
+• Optimize payment gateway.
+`;
+    } else {
+      report += `
+Overall Sentiment:
+Neutral
+
+Key Findings:
+• Customers have mixed opinions.
+• Some appreciate the product while others report issues.
+
+Recommendations:
+• Focus on improving customer experience.
+• Reduce complaints through faster support.
+`;
+    }
 
     return NextResponse.json({
-      report: response.output_text,
+      report,
     });
   } catch (error) {
-    console.error(
-  `[AI ERROR] ${new Date().toISOString()}`,
-  error
-);
+    console.error(error);
 
     return NextResponse.json(
-  {
-    success: false,
-    answer:
-      "Unable to process your request right now.",
-  },
-  {
-    status: 500,
-  }
-);
+      {
+        report: "Unable to generate report.",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

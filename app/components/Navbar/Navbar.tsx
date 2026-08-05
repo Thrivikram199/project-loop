@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 import {
   FaBars,
   FaBell,
@@ -19,7 +19,13 @@ export default function Navbar({
   collapsed,
   toggleSidebar,
 }: NavbarProps) {
-const { dark, toggleTheme } = useTheme();
+const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
   return (
     <motion.nav
       initial={{ y: -60 }}
@@ -101,16 +107,19 @@ const { dark, toggleTheme } = useTheme();
         />
 
         <input
-          placeholder="Search..."
-          style={{
-            width: "100%",
-            padding: "13px 15px 13px 45px",
-            borderRadius: "30px",
-            border: "none",
-            outline: "none",
-            fontSize: "15px",
-          }}
-        />
+  placeholder="Search..."
+  style={{
+    width: "100%",
+    padding: "13px 20px 13px 45px",
+    borderRadius: "30px",
+    border: "1px solid rgba(255,255,255,0.4)",
+    outline: "none",
+    fontSize: "15px",
+    background: "#ffffff",
+    color: "#111827",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+  }}
+/>
       </div>
 
       {/* RIGHT */}
@@ -149,30 +158,9 @@ const { dark, toggleTheme } = useTheme();
               fontWeight: "bold",
             }}
           >
-            4
+            
           </span>
         </Link>
-        <div
-  style={{
-    display: "flex",
-    gap: "15px",
-    alignItems: "center",
-  }}
->
-  <button
-    onClick={toggleTheme}
-    style={{
-      padding: "10px 18px",
-      borderRadius: "10px",
-      border: "none",
-      cursor: "pointer",
-      background: "#4f46e5",
-      color: "white",
-    }}
-  >
-    {dark ? "☀️ Light" : "🌙 Dark"}
-  </button>
-</div>
 
         <div
           style={{

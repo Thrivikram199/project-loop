@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { ThreeDots } from "react-loader-spinner";
 import jsPDF from "jspdf";
@@ -41,7 +41,13 @@ type DashboardStats = {
 };
 
 export default function AnalyticsPage() {
-  const { dark } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
 
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +75,19 @@ const [loadingTrend, setLoadingTrend] =
     try {
       setLoading(true);
 
-      const res = await fetch("/api/dashboard");
+     const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
+
+const res = await fetch("/api/dashboard", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
       if (!res.ok) {
   throw new Error("AI request failed");
 }

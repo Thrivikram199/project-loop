@@ -4,15 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  useEffect(() => {
+  const loggedUser = localStorage.getItem("loggedInUser");
+
+  if (loggedUser) {
+    router.push("/dashboard");
+  }
+}, [router]);
 
   async function login() {
   if (!email || !password) {
-    alert("Please enter email and password");
+    toast.error("Please enter email and password");
     return;
   }
 
@@ -28,21 +36,41 @@ export default function LoginPage() {
       }),
     });
 
-    const data = await res.json();
+    console.log("Status:", res.status);
 
-    if (res.ok) {
-      toast.success("Login Successful!");;
+    const text = await res.text();
 
-      // Redirect to dashboard
-      router.push("/dashboard");
-    } else {
-      alert(data.message);
+    console.log("Response:", text);
+
+    if (!res.ok) {
+      try {
+        const error = JSON.parse(text);
+        toast.error(error.message);
+      } catch {
+        toast.error("Server Error");
+        console.error("HTML Response:", text);
+      }
+      return;
     }
+
+    const data = JSON.parse(text);
+
+    console.log("Login Success:", data);
+
+    toast.success("Login Successful!");
+
+    localStorage.setItem(
+      "loggedInUser",
+      JSON.stringify(data.user)
+    );
+
+    router.push("/dashboard");
   } catch (error) {
-    console.error(error);
-    alert("Something went wrong.");
+    console.error("LOGIN ERROR:", error);
+    toast.error("Something went wrong.");
   }
 }
+
 
   return (
     <div

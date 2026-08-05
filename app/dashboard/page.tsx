@@ -8,7 +8,8 @@ import Charts from "../components/Charts/Charts";
 import Cards from "../components/Cards/Cards";
 import Footer from "../components/Footer/Footer";
 
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 import {
   FaSyncAlt,
@@ -27,7 +28,21 @@ type Feedback = {
 };
 
 export default function Dashboard() {
-  const { dark } = useTheme();
+  const router = useRouter();
+  useEffect(() => {
+  const loggedUser = localStorage.getItem("loggedInUser");
+
+  if (!loggedUser) {
+    router.push("/login");
+  }
+}, [router]);
+  const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -59,8 +74,19 @@ const [loadingRecommendations, setLoadingRecommendations] =
     try {
       setLoading(true);
 
-      const res = await fetch("/api/dashboard");
+      const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
+const res = await fetch("/api/dashboard", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
       const data = await res.json();
 
       setStats(data);
@@ -73,9 +99,22 @@ const [loadingRecommendations, setLoadingRecommendations] =
 
   async function loadFeedback() {
     try {
-      const res = await fetch("/api/feedback");
+      const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
-      const data = await res.json();
+const res = await fetch("/api/feedback", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    action: "get",
+    userId: loggedUser.id,
+  }),
+});
+
+const data = await res.json();
 
       if (Array.isArray(data)) {
         setFeedbacks(data);
@@ -128,9 +167,19 @@ const [loadingRecommendations, setLoadingRecommendations] =
   try {
     setLoadingRecommendations(true);
 
-    const res = await fetch(
-      "/api/ai-recommendations"
-    );
+    const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
+
+const res = await fetch("/api/ai-recommendations", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
 
     const data = await res.json();
 
@@ -251,6 +300,7 @@ const [loadingRecommendations, setLoadingRecommendations] =
         }}
       >
         <button
+        onClick={() => router.push("/feedback")}
           style={{
             background: "#4f46e5",
             color: "white",
@@ -271,6 +321,7 @@ const [loadingRecommendations, setLoadingRecommendations] =
         </button>
 
         <button
+        onClick={() => router.push("/reports")}
           style={{
             background: "#16a34a",
             color: "white",
@@ -838,7 +889,7 @@ const [loadingRecommendations, setLoadingRecommendations] =
           }}
         >
           <h2 style={{ color: "#4f46e5" }}>
-            📅 Today's Summary
+            📅 Todays Summary
           </h2>
 
           <div style={{ marginTop: "20px", lineHeight: "2.2" }}>

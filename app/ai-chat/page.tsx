@@ -17,17 +17,9 @@ export default function AIChatPage() {
 
   const [loading, setLoading] = useState(false);
 
-  const [messages, setMessages] =
-  useState<ChatMessage[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved =
-        localStorage.getItem("chatHistory");
-
-      return saved ? JSON.parse(saved) : [];
-    }
-
-    return [];
-  });
+ const [messages, setMessages] =
+  useState<ChatMessage[]>([]);
+  
   const messagesEndRef =
   useRef<HTMLDivElement>(null);
 

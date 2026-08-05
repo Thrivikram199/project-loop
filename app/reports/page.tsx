@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 import { motion } from "framer-motion";
 import { ThreeDots } from "react-loader-spinner";
@@ -25,7 +25,13 @@ type Feedback = {
 };
 
 export default function ReportsPage() {
-  const { dark } = useTheme();
+ const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
 
   const [loading, setLoading] =
     useState(true);
@@ -52,11 +58,25 @@ const [loadingAI, setLoadingAI] = useState(false);
     try {
       setLoading(true);
 
-      const dashboardRes =
-        await fetch("/api/dashboard");
+      const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
-      const dashboard =
-        await dashboardRes.json();
+const dashboardRes = await fetch("/api/dashboard", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
+
+if (!dashboardRes.ok) {
+  throw new Error("Failed to load dashboard data");
+}
+
+const dashboard = await dashboardRes.json();
 
       setStats(dashboard);
 

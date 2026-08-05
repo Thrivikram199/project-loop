@@ -1,29 +1,35 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function POST(req: Request) {
   try {
-    const feedbacks = await prisma.feedback.findMany();
+    const { userId } = await req.json();
+
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        userId,
+      },
+    });
 
     const total = feedbacks.length;
 
     const positive = feedbacks.filter(
-      (f) => f.sentiment === "POSITIVE"
-    ).length;
+  (f: typeof feedbacks[number]) => f.sentiment === "POSITIVE"
+).length;
 
-    const negative = feedbacks.filter(
-      (f) => f.sentiment === "NEGATIVE"
-    ).length;
+const negative = feedbacks.filter(
+  (f: typeof feedbacks[number]) => f.sentiment === "NEGATIVE"
+).length;
 
-    const neutral = feedbacks.filter(
-      (f) => f.sentiment === "NEUTRAL"
-    ).length;
+const neutral = feedbacks.filter(
+  (f: typeof feedbacks[number]) => f.sentiment === "NEUTRAL"
+).length;
 
     const themes: Record<string, number> = {};
 
-    feedbacks.forEach((item) => {
-      themes[item.theme] = (themes[item.theme] || 0) + 1;
-    });
+    feedbacks.forEach((item: typeof feedbacks[number]) => {
+  themes[item.theme] = (themes[item.theme] || 0) + 1;
+});
 
     const topTheme =
       Object.keys(themes).length > 0
@@ -46,9 +52,15 @@ export async function GET() {
       satisfaction,
     });
   } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
-      { message: "Failed to load dashboard data" },
-      { status: 500 }
+      {
+        message: "Failed to load dashboard data",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

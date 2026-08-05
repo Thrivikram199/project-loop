@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 import {
   PieChart,
@@ -36,7 +36,13 @@ export default function Charts({
     "#ef4444",
     "#f59e0b",
   ];
-const { dark } = useTheme();
+const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
   return (
     <div
       style={{

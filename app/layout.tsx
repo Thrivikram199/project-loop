@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ThemeProvider } from "@/context/ThemeContext";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -7,13 +7,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body
-        style={{
-          transition:
-            "background .3s ease,color .3s ease",
-        }}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <ThemeProvider>
           {children}
         </ThemeProvider>

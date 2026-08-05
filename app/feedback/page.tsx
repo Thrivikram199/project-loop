@@ -14,7 +14,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 type Feedback = {
   id: string;
@@ -25,7 +25,13 @@ type Feedback = {
 };
 
 export default function FeedbackPage() {
-  const { dark } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
 
   const [customer, setCustomer] = useState("");
   const [message, setMessage] = useState("");
@@ -66,9 +72,22 @@ export default function FeedbackPage() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/feedback");
+     const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
-      const data = await res.json();
+const res = await fetch("/api/feedback", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    action: "get",
+    userId: loggedUser.id,
+  }),
+});
+
+const data = await res.json();
 
       if (Array.isArray(data)) {
         setFeedbacks(data);
@@ -110,7 +129,6 @@ export default function FeedbackPage() {
       body: JSON.stringify({
         customer,
         message,
-        userId: "cms1daowq0000mn9keu1pvh4t",
       }),
     });
 
@@ -216,6 +234,7 @@ export default function FeedbackPage() {
       currentPage *
         feedbackPerPage
     );
+  
 
   return (
     <main

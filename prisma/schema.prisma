@@ -8,13 +8,19 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  password  String
-  role      Role       @default(VIEWER)
-  createdAt DateTime   @default(now())
-  feedbacks Feedback[]
+  id         String     @id @default(cuid())
+  name       String
+  email      String     @unique
+  password   String
+  role       Role       @default(VIEWER)
+
+  phone      String?    @default("")
+  department String?    @default("")
+  company    String?    @default("Project LOOP")
+
+  createdAt  DateTime   @default(now())
+
+  feedbacks  Feedback[]
 }
 
 model Feedback {
@@ -24,8 +30,9 @@ model Feedback {
   sentiment  Sentiment
   theme      String      @default("General")
   createdAt  DateTime    @default(now())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id])
+  userId     String?
+
+  user       User?        @relation(fields: [userId], references: [id])
 }
 
 enum Role {

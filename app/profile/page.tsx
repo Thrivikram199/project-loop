@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "next-themes";
 
 import { motion } from "framer-motion";
 import { ThreeDots } from "react-loader-spinner";
+
+
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import toast from "react-hot-toast";
 
 type UserProfile = {
   name: string;
@@ -13,29 +19,122 @@ type UserProfile = {
   department: string;
   company: string;
   phone: string;
+  createdAt: string;
 };
 
 export default function ProfilePage() {
-  const { dark } = useTheme();
 
+  const router = useRouter();
+  useEffect(() => {
+  const loggedUser = localStorage.getItem("loggedInUser");
+
+  if (!loggedUser) {
+    router.push("/login");
+  }
+}, [router]);
+
+const fileRef = useRef<HTMLInputElement>(null);
+
+  const { theme, setTheme } = useTheme();
+
+const dark = theme === "dark";
+
+function toggleTheme() {
+  setTheme(dark ? "light" : "dark");
+}
   const [loading, setLoading] =
     useState(true);
 
-  const [profile, setProfile] =
-    useState<UserProfile>({
-      name: "Thrivikram",
-      email: "thrivikram@example.com",
-      role: "Administrator",
-      department: "Customer Intelligence",
-      company: "Project LOOP",
-      phone: "+91 9876543210",
-    });
+    const [stats, setStats] = useState({
+  total: 0,
+  positive: 0,
+  negative: 0,
+  neutral: 0,
+});
 
+  const [profile, setProfile] = useState<UserProfile>({
+  name: "",
+  email: "",
+  role: "",
+  department: "",
+  company: "",
+  phone: "",
+  createdAt: '',
+});
+const fileInputRef = useRef<HTMLInputElement>(null);
+
+const [avatar, setAvatar] = useState<string>("");
   useEffect(() => {
-    setTimeout(() => {
+
+    async function loadStats() {
+  const loggedUser = JSON.parse(
+    localStorage.getItem("loggedInUser") || "{}"
+  );
+
+  const res = await fetch("/api/dashboard", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: loggedUser.id,
+    }),
+  });
+
+  if (!res.ok) return;
+
+  const data = await res.json();
+
+  setStats(data);
+}
+  async function loadProfile() {
+    try {
+      const loggedUser = JSON.parse(
+        localStorage.getItem("loggedInUser") || "{}"
+      );
+
+      if (!loggedUser.id) {
+        toast.error("Please login first");
+        router.push("/login");
+        return;
+      }
+
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: loggedUser.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message);
+        return;
+      }
+
+      setProfile({
+        name: data.name || "",
+        email: data.email || "",
+        role: data.role || "",
+        phone: data.phone || "",
+        department: data.department || "",
+        company: data.company || "",
+         createdAt: data.createdAt || "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load profile");
+    } finally {
       setLoading(false);
-    }, 800);
-  }, []);
+    }
+  }
+
+  loadProfile();
+}, [router]);
 
   if (loading) {
     return (
@@ -72,6 +171,52 @@ export default function ProfilePage() {
       </main>
     );
   }
+  <input
+  ref={fileRef}
+  type="file"
+  accept="image/*"
+  hidden
+/>
+
+function handleAvatarChange(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  const imageUrl = URL.createObjectURL(file);
+
+  setAvatar(imageUrl);
+}
+
+function downloadProfile() {
+
+  const profile = {
+    name: "Thrivikram",
+    email: "thrivikram@example.com",
+    role: "Administrator",
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(profile, null, 2)],
+    {
+      type: "application/json",
+    }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+
+  a.href = url;
+
+  a.download = "profile.json";
+
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
 
   return (
     <main
@@ -141,7 +286,9 @@ export default function ProfilePage() {
           cursor: "pointer",
           fontSize: "16px",
         }}
+        onClick={() => router.push("/profile/edit")}
       >
+
         ✏ Edit Profile
       </button>
     </div>
@@ -223,19 +370,27 @@ export default function ProfilePage() {
         }}
       >
         <button
-          style={{
-            width: "100%",
-            background: "#4f46e5",
-            color: "white",
-            border: "none",
-            padding: "14px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
+           onClick={() => fileInputRef.current?.click()}
+  style={{
+    width: "100%",
+    background: "#4f46e5",
+    color: "white",
+    border: "none",
+    padding: "16px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  }}
         >
           Change Avatar
         </button>
+        <input
+  ref={fileInputRef}
+  type="file"
+  accept="image/*"
+  style={{ display: "none" }}
+  onChange={handleAvatarChange}
+/>
       </div>
     </motion.div>
 
@@ -334,14 +489,14 @@ export default function ProfilePage() {
             padding: "25px",
           }}
         >
-          <h3>💬 Feedback Created</h3>
+          <h3>💬 Total Feedback</h3>
 
           <h1
             style={{
               fontSize: "46px",
             }}
           >
-            125
+            {stats.total}
           </h1>
         </motion.div>
 
@@ -355,14 +510,14 @@ export default function ProfilePage() {
             padding: "25px",
           }}
         >
-          <h3>📄 Reports</h3>
+          <h3>😊 Positive Feedback</h3>
 
           <h1
             style={{
               fontSize: "46px",
             }}
           >
-            38
+            {stats.positive}
           </h1>
         </motion.div>
 
@@ -376,14 +531,14 @@ export default function ProfilePage() {
             padding: "25px",
           }}
         >
-          <h3>📊 Analytics</h3>
+          <h3>😐 Neutral Feedback</h3>
 
           <h1
             style={{
               fontSize: "46px",
             }}
           >
-            54
+            {stats.neutral}
           </h1>
         </motion.div>
 
@@ -397,14 +552,14 @@ export default function ProfilePage() {
             padding: "25px",
           }}
         >
-          <h3>⭐ Login Count</h3>
+          <h3>😞 Negative Feedback</h3>
 
           <h1
             style={{
               fontSize: "46px",
             }}
           >
-            214
+            {stats.negative}
           </h1>
         </motion.div>
       </div>
@@ -713,6 +868,7 @@ export default function ProfilePage() {
               cursor: "pointer",
               fontWeight: "bold",
             }}
+           onClick={() => router.push("/change-password")}
           >
             Manage Security
           </button>
@@ -781,6 +937,7 @@ export default function ProfilePage() {
           </div>
 
           <button
+          onClick={() => router.push("/settings")}
             style={{
               marginTop: "25px",
               width: "100%",
@@ -849,6 +1006,7 @@ export default function ProfilePage() {
               cursor: "pointer",
               fontWeight: "bold",
             }}
+            onClick={() => router.push("/notifications")}
           >
             View All Notifications
           </button>
@@ -876,7 +1034,7 @@ export default function ProfilePage() {
         >
           <h3>📅 Member Since</h3>
 
-          <h2>January 2026</h2>
+          <h2>{new Date(profile.createdAt).toLocaleDateString()}</h2>
         </div>
 
         <div
@@ -890,7 +1048,7 @@ export default function ProfilePage() {
         >
           <h3>⭐ Profile Status</h3>
 
-          <h2>Verified</h2>
+          <h2>Active</h2>
         </div>
 
         <div
@@ -904,7 +1062,7 @@ export default function ProfilePage() {
         >
           <h3>🏆 Experience</h3>
 
-          <h2>Administrator</h2>
+          <h2>{profile.role}</h2>
         </div>
 
         <div
@@ -918,7 +1076,7 @@ export default function ProfilePage() {
         >
           <h3>🌍 Last Login</h3>
 
-          <h2>Today</h2>
+          <h2>Current Session</h2>
         </div>
       </div>
 
@@ -960,6 +1118,7 @@ export default function ProfilePage() {
               cursor: "pointer",
               fontWeight: "bold",
             }}
+            onClick={() => router.push("/profile/edit")}
           >
             ✏ Edit Profile
           </button>
@@ -974,6 +1133,7 @@ export default function ProfilePage() {
               cursor: "pointer",
               fontWeight: "bold",
             }}
+             onClick={() => router.push("/change-password")}
           >
             🔒 Change Password
           </button>
@@ -988,23 +1148,32 @@ export default function ProfilePage() {
               cursor: "pointer",
               fontWeight: "bold",
             }}
+            onClick={downloadProfile}
           >
             📥 Download Profile
           </button>
 
           <button
-            style={{
-              background: "#dc2626",
-              color: "white",
-              border: "none",
-              padding: "15px",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            🚪 Logout
-          </button>
+  onClick={() => {
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("projectSettings");
+
+    toast.success("Logged out successfully!");
+
+    router.push("/login");
+  }}
+  style={{
+    background: "#ef4444",
+    color: "white",
+    border: "none",
+    padding: "12px 24px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  }}
+>
+  🚪 Logout
+</button>
         </div>
       </div>
 
