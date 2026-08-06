@@ -1,22 +1,37 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function POST(req: Request) {
   try {
-    const feedbacks = await prisma.feedback.findMany();
+    const { userId } = await req.json();
+
+    const user = await prisma.user.findUnique({
+  where: {
+    id: userId,
+  },
+});
+
+const feedbacks = await prisma.feedback.findMany({
+  where: {
+    company: user?.company,
+  },
+});
 
     const total = feedbacks.length;
 
     const positive = feedbacks.filter(
-      (f) => f.sentiment === "POSITIVE"
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "POSITIVE"
     ).length;
 
     const negative = feedbacks.filter(
-      (f) => f.sentiment === "NEGATIVE"
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEGATIVE"
     ).length;
 
     const neutral = feedbacks.filter(
-      (f) => f.sentiment === "NEUTRAL"
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEUTRAL"
     ).length;
 
     let report = `
@@ -69,10 +84,9 @@ Neutral
 
 Key Findings:
 • Customers have mixed opinions.
-• Some appreciate the product while others report issues.
 
 Recommendations:
-• Focus on improving customer experience.
+• Improve customer experience.
 • Reduce complaints through faster support.
 `;
     }
@@ -80,6 +94,7 @@ Recommendations:
     return NextResponse.json({
       report,
     });
+
   } catch (error) {
     console.error(error);
 

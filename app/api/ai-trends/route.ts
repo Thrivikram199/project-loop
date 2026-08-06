@@ -1,104 +1,98 @@
-import { openai } from "@/lib/openai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { withRetry } from "@/lib/aiRetry";
-import { SYSTEM_PROMPT } from "@/lib/prompts";
 
-
-
-export async function GET() {
+export async function POST(req: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-  return NextResponse.json(
-    {
-      error: "OpenAI API key is not configured.",
-    },
-    {
-      status: 500,
-    }
-  );
-}
-    const feedbacks = await prisma.feedback.findMany({
-      orderBy: {
-        createdAt: "desc",
+    const { userId } = await req.json();
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
       },
-      take: 100,
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        company: user.company,
+      },
     });
 
     if (feedbacks.length === 0) {
       return NextResponse.json({
-        trends: "No feedback available.",
+        trends: [
+          {
+            title: "No Feedback Available",
+            description:
+              "Upload customer feedback to generate trend analysis.",
+          },
+        ],
       });
     }
 
-    const context = feedbacks
-      .map(
-        (f) =>
-          `Customer: ${f.customer}
-Message: ${f.message}
-Sentiment: ${f.sentiment}`
-      )
-      .join("\n\n");
+    const positive = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "POSITIVE"
+    ).length;
 
-    const response = await withRetry(() => openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: `
-You are a senior business analyst.
+    const negative = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEGATIVE"
+    ).length;
 
-Analyze these customer feedback records.
+    const neutral = feedbacks.filter(
+      (f: typeof feedbacks[number]) =>
+        f.sentiment === "NEUTRAL"
+    ).length;
 
-Return:
+    const trends = [
+      {
+        title: "Overall Trend",
+        description:
+          positive >= negative
+            ? "Customer satisfaction is generally positive."
+            : "Customer satisfaction requires improvement.",
+      },
+      {
+        title: "Positive Feedback",
+        description: `${positive} positive feedback records received.`,
+      },
+      {
+        title: "Negative Feedback",
+        description: `${negative} negative feedback records received.`,
+      },
+      {
+        title: "Neutral Feedback",
+        description: `${neutral} neutral feedback records received.`,
+      },
+      {
+        title: "Recommendation",
+        description:
+          negative > positive
+            ? "Focus on improving customer support and resolving complaints."
+            : "Continue maintaining product quality and customer satisfaction.",
+      },
+    ];
 
-1. Overall Trend
-
-2. Positive Trend
-
-3. Negative Trend
-
-4. Emerging Issues
-
-5. Opportunities
-
-6. Final Recommendation
-
-Customer Feedback:
-
-${context}
-`,
-    })
-  );
-  const prompt = `
-${SYSTEM_PROMPT}
-
-Generate business recommendations.
-
-Customer Feedback:
-
-${context}
-`;
-  console.log(
-  `[AI] ${new Date().toISOString()} - AI request completed`
-);
-
-    return Response.json({
-  trends: [
-    { month: "Jan", positive: 82, negative: 18 },
-    { month: "Feb", positive: 84, negative: 16 },
-    { month: "Mar", positive: 87, negative: 13 },
-    { month: "Apr", positive: 90, negative: 10 },
-    { month: "May", positive: 91, negative: 9 },
-    { month: "Jun", positive: 93, negative: 7 },
-  ],
-});
+    return NextResponse.json({
+      trends,
+    });
   } catch (error) {
-    console.error(
-  `[AI ERROR] ${new Date().toISOString()}`,
-  error
-);
+    console.error(error);
 
     return NextResponse.json(
       {
-        trends: "Unable to generate trend analysis.",
+        message: "Unable to generate trend analysis.",
       },
       {
         status: 500,

@@ -9,7 +9,7 @@ export default function Footer() {
         borderTop: "1px solid #ddd",
       }}
     >
-      © 2026 Project LOOP | AI Customer Feedback Intelligence Platform
+      © 2026 LOOP | AI Customer Feedback Intelligence Platform
     </footer>
   );
 }

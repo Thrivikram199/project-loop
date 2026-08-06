@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 import {
   FaChartPie,
@@ -25,6 +26,7 @@ export default function Sidebar({
   collapsed,
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const menus = [
     {
@@ -73,6 +75,15 @@ export default function Sidebar({
       link: "/admin",
     },
   ];
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("projectSettings");
+
+    toast.success("Logged out successfully!");
+
+    router.replace("/login");
+  }
 
   return (
     <motion.aside
@@ -165,34 +176,29 @@ export default function Sidebar({
         })}
       </div>
 
-      <Link
-        href="/login"
+      <motion.div
+        whileHover={{
+          scale: 1.05,
+        }}
+        onClick={logout}
         style={{
-          textDecoration: "none",
+          background: "#dc2626",
+          color: "white",
+          padding: "15px",
+          borderRadius: "14px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed
+            ? "center"
+            : "flex-start",
+          gap: "15px",
+          cursor: "pointer",
         }}
       >
-        <motion.div
-          whileHover={{
-            scale: 1.05,
-          }}
-          style={{
-            background: "#dc2626",
-            color: "white",
-            padding: "15px",
-            borderRadius: "14px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: collapsed
-              ? "center"
-              : "flex-start",
-            gap: "15px",
-          }}
-        >
-          <FaSignOutAlt />
+        <FaSignOutAlt />
 
-          {!collapsed && "Logout"}
-        </motion.div>
-      </Link>
+        {!collapsed && "Logout"}
+      </motion.div>
     </motion.aside>
   );
 }

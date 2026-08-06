@@ -1,6 +1,6 @@
-# 🚀 Project LOOP – AI Powered Customer Feedback Analytics System
+# 🚀 LOOP – AI Powered Customer Feedback Analytics System
 
-Project LOOP is a full-stack AI-powered Customer Feedback Analytics System built using **Next.js**, **TypeScript**, **Prisma**, **PostgreSQL**, and **OpenAI**. It helps businesses collect, analyze, visualize, and understand customer feedback through interactive dashboards and AI-generated insights.
+LOOP is a full-stack AI-powered Customer Feedback Analytics System built using **Next.js**, **TypeScript**, **Prisma**, **PostgreSQL**, and **OpenAI**. It helps businesses collect, analyze, visualize, and understand customer feedback through interactive dashboards and AI-generated insights.
 
 ---
 
@@ -230,7 +230,7 @@ Example:
 
 **CHILAKA VENKATA SAI THRIVIKRAM**
 
-Project LOOP
+LOOP
 
 AI Powered Customer Feedback Analytics System
 

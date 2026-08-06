@@ -6,7 +6,7 @@ ALTER TABLE "Feedback" ADD COLUMN     "theme" TEXT NOT NULL DEFAULT 'General',
 ALTER COLUMN "userId" DROP NOT NULL;
 
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "company" TEXT DEFAULT 'Project LOOP',
+ALTER TABLE "User" ADD COLUMN     "company" TEXT DEFAULT 'LOOP',
 ADD COLUMN     "department" TEXT DEFAULT '',
 ADD COLUMN     "phone" TEXT DEFAULT '';
 

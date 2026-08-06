@@ -72,7 +72,7 @@ function toggleTheme() {
             fontSize: "18px",
           }}
         >
-          Customize your Project LOOP experience.
+          Customize your LOOP experience.
         </p>
       </div>
 
@@ -299,7 +299,7 @@ onChange={toggleTheme}
         <hr />
 
         <p>
-          © 2026 Project LOOP • AI Customer
+          © 2026 LOOP • AI Customer
           Feedback Intelligence Platform
         </p>
       </div>

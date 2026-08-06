@@ -109,7 +109,7 @@ export default function LoginPage() {
             marginBottom: "35px",
           }}
         >
-          Login to your Project LOOP account
+          Login to your LOOP account
         </p>
 
         <input

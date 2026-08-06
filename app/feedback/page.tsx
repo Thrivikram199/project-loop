@@ -1092,7 +1092,7 @@ const data = await res.json();
             marginBottom: "10px",
           }}
         >
-          Project LOOP
+          LOOP
         </h3>
 
         <p>

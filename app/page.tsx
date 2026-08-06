@@ -27,7 +27,7 @@ export default function Home() {
     <main className="min-h-screen bg-slate-50">
       <nav className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-5">
-          <h2 className="text-3xl font-bold text-indigo-600">Project Loop</h2>
+          <h2 className="text-3xl font-bold text-indigo-600">Loop</h2>
 
          
           <div className="flex gap-3">
@@ -211,7 +211,7 @@ export default function Home() {
 >
   <div className="max-w-6xl mx-auto px-10">
      <h2 className="text-5xl font-bold text-center">
-      How Project LOOP Works
+      How LOOP Works
     </h2>
 
     <p className="text-center text-slate-500 text-xl mt-4">
@@ -276,7 +276,7 @@ export default function Home() {
 
     <div>
       <h2 className="text-4xl font-bold text-indigo-400">
-        PROJECT LOOP
+        LOOP
       </h2>
 
       <p className="mt-6 text-slate-400 leading-8">
@@ -324,7 +324,7 @@ export default function Home() {
   <hr className="border-slate-700 my-12" />
 
   <div className="text-center text-slate-400 text-lg">
-    © 2026 Project LOOP. All Rights Reserved.
+    © 2026 LOOP. All Rights Reserved.
   </div>
 </footer>
     </main>

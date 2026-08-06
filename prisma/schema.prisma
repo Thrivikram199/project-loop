@@ -16,7 +16,7 @@ model User {
 
   phone      String?    @default("")
   department String?    @default("")
-  company    String?    @default("Project LOOP")
+  company    String?    @default("LOOP")
 
   createdAt  DateTime   @default(now())
 
@@ -24,15 +24,18 @@ model User {
 }
 
 model Feedback {
-  id         String      @id @default(cuid())
+  id         String   @id @default(cuid())
   customer   String
   message    String
-  sentiment  Sentiment
-  theme      String      @default("General")
-  createdAt  DateTime    @default(now())
-  userId     String?
+  sentiment  String
+  theme      String?
 
-  user       User?        @relation(fields: [userId], references: [id])
+  company    String
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime @default(now())
 }
 
 enum Role {

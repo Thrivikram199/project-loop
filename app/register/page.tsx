@@ -9,13 +9,25 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+const [department, setDepartment] = useState("");
+const [company, setCompany] = useState("");
+const [role, setRole] = useState("VIEWER");
   const router = useRouter();
 
   async function register() {
-  if (!name || !email || !password) {
-    alert("Please fill all fields");
-    return;
-  }
+  if (
+  !name ||
+  !email ||
+  !password ||
+  !phone ||
+  !department ||
+  !company ||
+  !role
+) {
+  alert("Please fill all fields");
+  return;
+}
 
   try {
     const res = await fetch("/api/register", {
@@ -27,6 +39,10 @@ export default function RegisterPage() {
         name,
         email,
         password,
+        phone,
+  department,
+  company,
+  role,
       }),
     });
 
@@ -81,7 +97,7 @@ export default function RegisterPage() {
             marginBottom: "35px",
           }}
         >
-          Join Project LOOP today
+          Join LOOP today
         </p>
 
         <input
@@ -113,6 +129,61 @@ export default function RegisterPage() {
             fontSize: "16px",
           }}
         />
+        <input
+  type="text"
+  placeholder="Phone Number"
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+  style={{width: "100%",
+            padding: "15px",
+            marginBottom: "20px",
+            border: "1px solid #cbd5e1",
+            borderRadius: "10px",
+            fontSize: "16px",}}
+
+            
+/>
+
+<input
+  type="text"
+  placeholder="Department"
+  value={department}
+  onChange={(e) => setDepartment(e.target.value)}
+  style={{width: "100%",
+            padding: "15px",
+            marginBottom: "20px",
+            border: "1px solid #cbd5e1",
+            borderRadius: "10px",
+            fontSize: "16px",}}
+/>
+
+<input
+  type="text"
+  placeholder="Company"
+  value={company}
+  onChange={(e) => setCompany(e.target.value)}
+  style={{width: "100%",
+            padding: "15px",
+            marginBottom: "20px",
+            border: "1px solid #cbd5e1",
+            borderRadius: "10px",
+            fontSize: "16px",}}
+/>
+
+<select
+  value={role}
+  onChange={(e) => setRole(e.target.value)}
+  style={{width: "100%",
+            padding: "15px",
+            marginBottom: "20px",
+            border: "1px solid #cbd5e1",
+            borderRadius: "10px",
+            fontSize: "16px",}}
+>
+  <option value="VIEWER">Viewer</option>
+  <option value="ANALYST">Analyst</option>
+  <option value="ADMIN">Administrator</option>
+</select>
 
         <input
           type="password"

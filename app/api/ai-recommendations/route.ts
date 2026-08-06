@@ -5,11 +5,17 @@ export async function POST(req: Request) {
   try {
     const { userId } = await req.json();
 
-    const feedbacks = await prisma.feedback.findMany({
-      where: {
-        userId,
-      },
-    });
+    const user = await prisma.user.findUnique({
+  where: {
+    id: userId,
+  },
+});
+
+const feedbacks = await prisma.feedback.findMany({
+  where: {
+    company: user?.company,
+  },
+});
 
     if (feedbacks.length === 0) {
       return NextResponse.json({

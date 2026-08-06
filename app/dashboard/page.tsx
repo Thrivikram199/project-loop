@@ -924,7 +924,7 @@ const res = await fetch("/api/ai-recommendations", {
             padding: "25px",
           }}
         >
-          <h2>🏆 Project LOOP</h2>
+          <h2>🏆 LOOP</h2>
 
           <p
             style={{

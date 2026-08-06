@@ -80,11 +80,13 @@ const dashboard = await dashboardRes.json();
 
       setStats(dashboard);
 
-      const feedbackRes =
-        await fetch("/api/feedback");
+      const feedbackRes = await fetch("/api/feedback");
 
-      const feedback =
-        await feedbackRes.json();
+if (!feedbackRes.ok) {
+  throw new Error("Failed to load feedback");
+}
+
+const feedback = await feedbackRes.json();
 
       if (Array.isArray(feedback)) {
         setFeedbacks(feedback);
@@ -236,7 +238,7 @@ function downloadAIReport() {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
 
-  doc.text("Project LOOP", 20, 20);
+  doc.text("LOOP", 20, 20);
 
   doc.setFontSize(16);
   doc.text("AI Executive Report", 20, 35);
@@ -1133,7 +1135,7 @@ function downloadAIReport() {
           }}
         >
           This report summarizes customer
-          feedback collected by Project LOOP.
+          feedback collected by LOOP.
 
           <br /><br />
 
@@ -1331,7 +1333,7 @@ function downloadAIReport() {
             color: "#4f46e5",
           }}
         >
-          Project LOOP
+          LOOP
         </h3>
 
         <p>
@@ -1352,7 +1354,7 @@ function downloadAIReport() {
             fontSize: "13px",
           }}
         >
-          © 2026 Project LOOP. All Rights Reserved.
+          © 2026 LOOP. All Rights Reserved.
         </p>
       </footer>
 

@@ -163,7 +163,7 @@ function clearChat() {
       marginBottom: "15px",
     }}
   >
-    👋 Welcome to Project LOOP AI Assistant!
+    👋 Welcome to LOOP AI Assistant!
   </h2>
 
   <p

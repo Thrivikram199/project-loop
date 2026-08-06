@@ -10,16 +10,30 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const {
+      name,
+      email,
+      password,
+      phone,
+      department,
+      company,
+      role,
+    } = await req.json();
 
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { message: "User already exists" },
-        { status: 400 }
+        {
+          message: "User already exists",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -30,6 +44,10 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
+        phone,
+        department,
+        company,
+        role,
       },
     });
 
@@ -38,14 +56,20 @@ export async function POST(req: Request) {
         message: "Registration successful",
         user,
       },
-      { status: 201 }
+      {
+        status: 201,
+      }
     );
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
+      {
+        message: "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

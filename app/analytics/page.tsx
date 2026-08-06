@@ -60,8 +60,9 @@ function toggleTheme() {
     satisfaction: 0,
   });
 
-  const [trendReport, setTrendReport] =
-  useState("");
+ const [trendReport, setTrendReport] = useState<
+  { title: string; description: string }[]
+>([]);
 
 const [loadingTrend, setLoadingTrend] =
   useState(false);
@@ -208,17 +209,32 @@ async function loadTrendAnalysis() {
   try {
     setLoadingTrend(true);
 
-    const res = await fetch("/api/ai-trends");
+    const loggedUser = JSON.parse(
+  localStorage.getItem("loggedInUser") || "{}"
+);
 
-    const data = await res.json();
+const res = await fetch("/api/ai-trends", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: loggedUser.id,
+  }),
+});
+
+const data = await res.json();
 
     setTrendReport(data.trends);
   } catch (error) {
     console.error(error);
 
-    setTrendReport(
-      "Failed to load AI trend analysis."
-    );
+    setTrendReport([
+  {
+    title: "Error",
+    description: "Failed to load AI trend analysis.",
+  },
+]);
   } finally {
     setLoadingTrend(false);
   }
@@ -1039,7 +1055,7 @@ async function loadTrendAnalysis() {
             color: "#4f46e5",
           }}
         >
-          Project LOOP
+          LOOP
         </h3>
 
         <p>
@@ -1071,14 +1087,32 @@ async function loadTrendAnalysis() {
     <p>Analyzing customer trends...</p>
   ) : (
     <div
+  style={{
+    marginTop: "20px",
+  }}
+>
+  {trendReport.map((item, index) => (
+    <div
+      key={index}
       style={{
-        marginTop: "20px",
-        whiteSpace: "pre-wrap",
-        lineHeight: "1.8",
+        marginBottom: "20px",
+        padding: "15px",
+        borderBottom: "1px solid #ddd",
       }}
     >
-      {trendReport}
+      <h3
+        style={{
+          color: "#4f46e5",
+          marginBottom: "8px",
+        }}
+      >
+        {item.title}
+      </h3>
+
+      <p>{item.description}</p>
     </div>
+  ))}
+</div>
   )}
 </div>
 

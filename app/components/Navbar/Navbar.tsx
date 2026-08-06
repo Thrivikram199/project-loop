@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -19,13 +20,32 @@ export default function Navbar({
   collapsed,
   toggleSidebar,
 }: NavbarProps) {
-const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
-const dark = theme === "dark";
+  const dark = theme === "dark";
 
-function toggleTheme() {
-  setTheme(dark ? "light" : "dark");
-}
+  const user = useMemo(() => {
+  if (typeof window === "undefined") {
+    return {
+      name: "Guest",
+      role: "Viewer",
+    };
+  }
+
+  const loggedUser = JSON.parse(
+    localStorage.getItem("loggedInUser") || "{}"
+  );
+
+  return {
+    name: loggedUser.name || "Guest",
+    role: loggedUser.role || "Viewer",
+  };
+}, []);
+
+  function toggleTheme() {
+    setTheme(dark ? "light" : "dark");
+  }
+
   return (
     <motion.nav
       initial={{ y: -60 }}
@@ -75,13 +95,13 @@ function toggleTheme() {
               fontSize: "30px",
             }}
           >
-            PROJECT LOOP
+            LOOP
           </h2>
 
           <div
             style={{
               fontSize: "13px",
-              opacity: .9,
+              opacity: 0.9,
             }}
           >
             AI Customer Feedback Intelligence Platform
@@ -89,38 +109,7 @@ function toggleTheme() {
         </div>
       </div>
 
-      {/* CENTER */}
-
-      <div
-        style={{
-          width: "420px",
-          position: "relative",
-        }}
-      >
-        <FaSearch
-          style={{
-            position: "absolute",
-            top: "15px",
-            left: "15px",
-            color: "#6b7280",
-          }}
-        />
-
-        <input
-  placeholder="Search..."
-  style={{
-    width: "100%",
-    padding: "13px 20px 13px 45px",
-    borderRadius: "30px",
-    border: "1px solid rgba(255,255,255,0.4)",
-    outline: "none",
-    fontSize: "15px",
-    background: "#ffffff",
-    color: "#111827",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-  }}
-/>
-      </div>
+      
 
       {/* RIGHT */}
 
@@ -158,7 +147,6 @@ function toggleTheme() {
               fontWeight: "bold",
             }}
           >
-            
           </span>
         </Link>
 
@@ -173,10 +161,11 @@ function toggleTheme() {
             borderRadius: "30px",
           }}
         >
-          
           <img
-            src="https://ui-avatars.com/api/?name=Thrivikram"
-            alt=""
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+              user.name
+            )}`}
+            alt={user.name}
             style={{
               width: "42px",
               height: "42px",
@@ -190,15 +179,16 @@ function toggleTheme() {
                 fontWeight: "bold",
               }}
             >
-              Thrivikram
+              {user.name}
             </div>
 
             <div
               style={{
                 fontSize: "12px",
+                textTransform: "capitalize",
               }}
             >
-              Administrator
+              {user.role}
             </div>
           </div>
 

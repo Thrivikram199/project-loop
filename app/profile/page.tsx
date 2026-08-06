@@ -270,7 +270,7 @@ function downloadProfile() {
             fontSize: "18px",
           }}
         >
-          Manage your Project LOOP account,
+          Manage your LOOP account,
           preferences and activity.
         </p>
       </div>
@@ -610,7 +610,7 @@ function downloadProfile() {
 
             <div>⭐ Customer Insights Expert</div>
 
-            <div>🚀 Project LOOP Contributor</div>
+            <div>🚀 LOOP Contributor</div>
           </div>
         </motion.div>
 
@@ -753,7 +753,7 @@ function downloadProfile() {
         >
           You have actively managed customer
           feedback, generated reports, and monitored
-          analytics using Project LOOP.
+          analytics using LOOP.
 
           <br />
           <br />
@@ -802,7 +802,7 @@ function downloadProfile() {
                 : "#374151",
             }}
           >
-            <div>🟢 Logged into Project LOOP</div>
+            <div>🟢 Logged into LOOP</div>
 
             <div>💬 Added customer feedback</div>
 
@@ -1233,7 +1233,7 @@ function downloadProfile() {
             fontSize: "17px",
           }}
         >
-          Project LOOP is an AI-powered Customer
+          LOOP is an AI-powered Customer
           Feedback Intelligence Platform developed
           using Next.js, React, Prisma ORM,
           Neon PostgreSQL, and TypeScript.
@@ -1263,7 +1263,7 @@ function downloadProfile() {
             color: "#4f46e5",
           }}
         >
-          Project LOOP
+          LOOP
         </h3>
 
         <p>
@@ -1284,7 +1284,7 @@ function downloadProfile() {
             fontSize: "13px",
           }}
         >
-          © 2026 Project LOOP. All Rights Reserved.
+          © 2026 LOOP. All Rights Reserved.
         </p>
       </footer>
 

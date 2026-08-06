@@ -64,7 +64,7 @@ export default function AdminPage() {
         <h1>👨‍💼 Admin Dashboard</h1>
 
         <p>
-          Welcome to the Project LOOP administration
+          Welcome to the LOOP administration
           panel.
         </p>
       </div>

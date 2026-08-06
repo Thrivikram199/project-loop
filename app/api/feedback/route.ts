@@ -6,11 +6,28 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // Load feedback
+    // Load feedback for the user's company
     if (body.action === "get") {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: body.userId,
+        },
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          {
+            message: "User not found",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
       const feedback = await prisma.feedback.findMany({
         where: {
-          userId: body.userId,
+          company: user.company,
         },
         orderBy: {
           createdAt: "desc",
@@ -23,6 +40,23 @@ export async function POST(req: Request) {
     // Add feedback
     const { customer, message, userId } = body;
 
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
     const sentiment = detectSentiment(message);
 
     const feedback = await prisma.feedback.create({
@@ -32,6 +66,7 @@ export async function POST(req: Request) {
         sentiment,
         theme: "General",
         userId,
+        company: user.company,
       },
     });
 
