@@ -16,7 +16,7 @@ model User {
 
   phone      String?    @default("")
   department String?    @default("")
-  company    String?    @default("LOOP")
+  company    String    @default("LOOP")
 
   createdAt  DateTime   @default(now())
 
