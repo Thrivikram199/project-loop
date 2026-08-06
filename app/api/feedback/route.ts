@@ -9,21 +9,32 @@ export async function POST(req: Request) {
     // Load feedback for the user's company
     if (body.action === "get") {
       const user = await prisma.user.findUnique({
-        where: {
-          id: body.userId,
-        },
-      });
+  where: {
+    id: body.userId,
+  },
+});
 
-      if (!user.company) {
-        return NextResponse.json(
-          {
-            message: "User company is not set.",
-          },
-          {
-            status: 404,
-          }
-        );
-      }
+if (!user) {
+  return NextResponse.json(
+    {
+      message: "User not found.",
+    },
+    {
+      status: 404,
+    }
+  );
+}
+
+if (!user.company) {
+  return NextResponse.json(
+    {
+      message: "User company is not set.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
 
       const feedback = await prisma.feedback.findMany({
         where: {

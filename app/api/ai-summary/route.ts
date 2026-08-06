@@ -11,6 +11,17 @@ export async function POST(req: Request) {
   },
 });
 
+if (!user) {
+  return NextResponse.json(
+    {
+      message: "User not found.",
+    },
+    {
+      status: 404,
+    }
+  );
+}
+
 if (!user.company) {
   return NextResponse.json(
     {
