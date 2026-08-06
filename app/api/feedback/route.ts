@@ -14,10 +14,10 @@ export async function POST(req: Request) {
         },
       });
 
-      if (!user) {
+      if (!user.company) {
         return NextResponse.json(
           {
-            message: "User not found",
+            message: "User company is not set.",
           },
           {
             status: 404,

@@ -98,8 +98,8 @@ export default function Navbar({
   <img
     src="/logo.png"
     alt="Loop Logo"
-    width={42}
-    height={42}
+    width={45}
+    height={45}
   />
 
   <h2
