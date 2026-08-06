@@ -52,19 +52,19 @@ const negative = feedbacks.filter(
 const neutral = feedbacks.filter(
   (f: typeof feedbacks[number]) => f.sentiment === "NEUTRAL"
 ).length;
+const themes: Record<string, number> = {};
 
-    const themes: Record<string, number> = {};
-
-    feedbacks.forEach((item: typeof feedbacks[number]) => {
-  themes[item.theme] = (themes[item.theme] || 0) + 1;
+feedbacks.forEach((item: typeof feedbacks[number]) => {
+  const theme = item.theme ?? "General";
+  themes[theme] = (themes[theme] || 0) + 1;
 });
 
-    const topTheme =
-      Object.keys(themes).length > 0
-        ? Object.keys(themes).reduce((a, b) =>
-            themes[a] > themes[b] ? a : b
-          )
-        : "No Data";
+   const topTheme =
+  Object.keys(themes).length > 0
+    ? Object.keys(themes).reduce((a, b) =>
+        themes[a] > themes[b] ? a : b
+      )
+    : "General";
 
     const satisfaction =
       total > 0
