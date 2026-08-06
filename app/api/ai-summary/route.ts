@@ -11,9 +11,20 @@ export async function POST(req: Request) {
   },
 });
 
+if (!user) {
+  return NextResponse.json(
+    {
+      message: "User not found",
+    },
+    {
+      status: 404,
+    }
+  );
+}
+
 const feedbacks = await prisma.feedback.findMany({
   where: {
-    company: user?.company,
+    company: user.company,
   },
 });
 

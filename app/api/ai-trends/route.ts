@@ -22,11 +22,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const feedbacks = await prisma.feedback.findMany({
-      where: {
-        company: user.company,
-      },
-    });
+    if (!user) {
+  return NextResponse.json(
+    {
+      message: "User not found",
+    },
+    {
+      status: 404,
+    }
+  );
+}
+
+const feedbacks = await prisma.feedback.findMany({
+  where: {
+    company: user.company,
+  },
+});
 
     if (feedbacks.length === 0) {
       return NextResponse.json({
