@@ -24,17 +24,32 @@ export async function POST(req: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+  where: {
+    id: userId,
+  },
+});
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "Invalid user." },
-        { status: 404 }
-      );
+if (!user) {
+  return NextResponse.json(
+    {
+      message: "User not found",
+    },
+    {
+      status: 404,
     }
+  );
+}
+
+if (!user.company) {
+  return NextResponse.json(
+    {
+      message: "User company is not set.",
+    },
+    {
+      status: 400,
+    }
+  );
+}
 
     const text = await file.text();
 
@@ -52,17 +67,18 @@ export async function POST(req: Request) {
 
     for (const row of records) {
       await prisma.feedback.create({
-        data: {
-          customer: row.customer,
-          message: row.message,
-          sentiment: (row.sentiment ?? "NEUTRAL").toUpperCase() as
-  | "POSITIVE"
-  | "NEGATIVE"
-  | "NEUTRAL",
-          theme: "General",
-          userId: user.id,
-        },
-      });
+  data: {
+    customer: row.customer,
+    message: row.message,
+    sentiment: (row.sentiment ?? "NEUTRAL").toUpperCase() as
+      | "POSITIVE"
+      | "NEGATIVE"
+      | "NEUTRAL",
+    theme: "General",
+    userId,
+    company: user.company,
+  },
+});
 
       imported++;
     }
