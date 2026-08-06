@@ -6,27 +6,38 @@ export async function POST(req: Request) {
     const { userId } = await req.json();
 
     const user = await prisma.user.findUnique({
-  where: {
-    id: userId,
-  },
-});
+      where: {
+        id: userId,
+      },
+    });
 
-if (!user.company) {
-  return NextResponse.json(
-    {
-      message: "User company is not set.",
-    },
-    {
-      status: 400,
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found.",
+        },
+        {
+          status: 404,
+        }
+      );
     }
-  );
-}
 
-const feedbacks = await prisma.feedback.findMany({
-  where: {
-    company: user.company,
-  },
-});
+    if (!user.company) {
+      return NextResponse.json(
+        {
+          message: "User company is not set.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        company: user.company,
+      },
+    });
 
     if (feedbacks.length === 0) {
       return NextResponse.json({
@@ -38,19 +49,16 @@ const feedbacks = await prisma.feedback.findMany({
     }
 
     const positive = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "POSITIVE"
-    ).length;
+  (f: typeof feedbacks[number]) => f.sentiment === "POSITIVE"
+).length;
 
     const negative = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "NEGATIVE"
-    ).length;
+  (f: typeof feedbacks[number]) => f.sentiment === "NEGATIVE"
+).length;
 
-    const neutral = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "NEUTRAL"
-    ).length;
+const neutral = feedbacks.filter(
+  (f: typeof feedbacks[number]) => f.sentiment === "NEUTRAL"
+).length;
 
     const recommendations: string[] = [];
 

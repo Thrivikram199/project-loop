@@ -54,7 +54,7 @@ export default function Navbar({
       style={{
         height: "80px",
         background:
-          "linear-gradient(90deg,#4f46e5,#6366f1)",
+          "#312e140",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -92,35 +92,50 @@ export default function Navbar({
   style={{
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "16px",
   }}
 >
   <img
-    src="/logo.png"
-    alt="Loop Logo"
-    width={45}
-    height={45}
+    src="/logo2.png"
+    alt="Project LOOP"
+    style={{
+      width: "120px",
+      height: "120px",
+      objectFit: "contain",
+    }}
   />
 
-  <h2
+  <div
     style={{
-      margin: 0,
-      fontSize: "30px",
-      fontWeight: "bold",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
     }}
   >
-    LOOP
-  </h2>
+    <h2
+      style={{
+        margin: 0,
+        color: "white",
+        fontSize: "42px",
+        fontWeight: "700",
+        lineHeight: "1",
+      }}
+    >
+      LOOP
+    </h2>
 
-          <div
-            style={{
-              fontSize: "13px",
-              opacity: 0.9,
-            }}
-          >
-            AI Customer Feedback Intelligence Platform
-          </div>
-        </div>
+    <span
+      style={{
+        marginTop: "4px",
+        color: "white",
+        fontSize: "15px",
+        fontWeight: "500",
+      }}
+    >
+      AI Customer Feedback Intelligence Platform
+    </span>
+  </div>
+</div>
       </div>
 
       

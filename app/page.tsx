@@ -31,28 +31,49 @@ export default function Home() {
   style={{
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "16px",
   }}
 >
   <img
     src="/logo.png"
-    alt="Loop Logo"
-    width={80}
-    height={80}
+    alt="Project LOOP"
+    style={{
+      width: "120px",
+      height: "120px",
+      objectFit: "contain",
+    }}
   />
 
-  <h1
+  <div
     style={{
-      margin: 0,
-      fontSize: "35px",   // Increase text size
-      fontWeight: "700",
-      color: "#4f46e5",
-      letterSpacing: "1px",
-      lineHeight: 1,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
     }}
   >
-    LOOP
-  </h1>
+    <h2
+      style={{
+        margin: 0,
+        color: "#4f46e5",
+        fontSize: "42px",
+        fontWeight: "700",
+        lineHeight: "1",
+      }}
+    >
+      LOOP
+    </h2>
+
+    <span
+      style={{
+        marginTop: "4px",
+        color: "#555",
+        fontSize: "15px",
+        fontWeight: "500",
+      }}
+    >
+      AI Customer Feedback Intelligence Platform
+    </span>
+  </div>
 </div>
          
           <div className="flex gap-3">
