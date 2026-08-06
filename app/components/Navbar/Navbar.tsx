@@ -88,15 +88,29 @@ export default function Navbar({
           <FaBars />
         </button>
 
-        <div>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: "30px",
-            }}
-          >
-            LOOP
-          </h2>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  }}
+>
+  <img
+    src="/logo.png"
+    alt="Loop Logo"
+    width={42}
+    height={42}
+  />
+
+  <h2
+    style={{
+      margin: 0,
+      fontSize: "30px",
+      fontWeight: "bold",
+    }}
+  >
+    LOOP
+  </h2>
 
           <div
             style={{

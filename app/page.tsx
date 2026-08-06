@@ -27,8 +27,33 @@ export default function Home() {
     <main className="min-h-screen bg-slate-50">
       <nav className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-5">
-          <h2 className="text-3xl font-bold text-indigo-600">Loop</h2>
+          <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  }}
+>
+  <img
+    src="/logo.png"
+    alt="Loop Logo"
+    width={80}
+    height={80}
+  />
 
+  <h1
+    style={{
+      margin: 0,
+      fontSize: "35px",   // Increase text size
+      fontWeight: "700",
+      color: "#4f46e5",
+      letterSpacing: "1px",
+      lineHeight: 1,
+    }}
+  >
+    LOOP
+  </h1>
+</div>
          
           <div className="flex gap-3">
             <a
