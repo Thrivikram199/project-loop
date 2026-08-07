@@ -80,8 +80,21 @@ const dashboard = await dashboardRes.json();
 
       setStats(dashboard);
 
-      const feedbackRes = await fetch("/api/feedback");
+  if (!loggedUser.id) {
+  throw new Error("User not logged in");
+}
 
+
+      const feedbackRes = await fetch("/api/feedback", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    action: "get",
+    userId: loggedUser.id,
+  }),
+});
 if (!feedbackRes.ok) {
   throw new Error("Failed to load feedback");
 }
