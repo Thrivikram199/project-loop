@@ -230,16 +230,35 @@ const feedback = await feedbackRes.json();
   try {
     setLoadingAI(true);
 
-    const res = await fetch("/api/ai-report");
-    if (!res.ok) {
-  throw new Error("AI request failed");
-}
+    const loggedUser = JSON.parse(
+      localStorage.getItem("loggedInUser") || "{}"
+    );
+
+    if (!loggedUser.id) {
+      throw new Error("User not logged in");
+    }
+
+    const res = await fetch("/api/ai-report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: loggedUser.id,
+      }),
+    });
 
     const data = await res.json();
 
+    if (!res.ok) {
+      console.error("AI Report Error:", data);
+      throw new Error(data.message || "AI request failed");
+    }
+
     setAiReport(data.report);
+
   } catch (error) {
-    console.error(error);
+    console.error("AI Report Error:", error);
   } finally {
     setLoadingAI(false);
   }

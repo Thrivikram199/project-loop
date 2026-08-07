@@ -116,8 +116,18 @@ const data = await res.json();
   }
 
   async function addFeedback() {
-    if (!customer || !message) {
-      toast.error("Please fill all fields");
+  if (!customer.trim() || !message.trim()) {
+    toast.error("Please fill all fields");
+    return;
+  }
+
+  try {
+    const loggedUser = JSON.parse(
+      localStorage.getItem("loggedInUser") || "{}"
+    );
+
+    if (!loggedUser.id) {
+      toast.error("User session not found");
       return;
     }
 
@@ -127,23 +137,32 @@ const data = await res.json();
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        customer,
-        message,
+        action: "create",
+        userId: loggedUser.id,
+        customer: customer.trim(),
+        message: message.trim(),
       }),
     });
 
-    if (response.ok) {
-      toast.success("Feedback Added");
+    const data = await response.json();
 
-      setCustomer("");
-      setMessage("");
-
-      loadFeedback();
-    } else {
-      toast.error("Failed to save feedback");
+    if (!response.ok) {
+      console.error("Add feedback error:", data);
+      toast.error(data.message || "Failed to save feedback");
+      return;
     }
-  }
 
+    toast.success("Feedback Added");
+
+    setCustomer("");
+    setMessage("");
+
+    await loadFeedback();
+  } catch (error) {
+    console.error("Add feedback error:", error);
+    toast.error("Failed to save feedback");
+  }
+}
   async function updateFeedback() {
     const response = await fetch(
       `/api/feedback/${editingId}`,
