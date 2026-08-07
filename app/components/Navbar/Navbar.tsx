@@ -54,7 +54,7 @@ export default function Navbar({
       style={{
         height: "80px",
         background:
-          "#312e140",
+          "#312e80",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
