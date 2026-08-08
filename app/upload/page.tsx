@@ -12,43 +12,62 @@ export default function UploadPage() {
  async function uploadCSV(selectedFile?: File) {
   const uploadFile = selectedFile || file;
 
-if (!uploadFile) {
-  fileInputRef.current?.click();
-  return;
-}
+  if (!uploadFile) {
+    fileInputRef.current?.click();
+    return;
+  }
 
   try {
     setLoading(true);
 
-    const loggedUser = JSON.parse(
-  localStorage.getItem("loggedInUser") || "{}"
-);
+    const storedUser = localStorage.getItem("loggedInUser");
 
-const formData = new FormData();
+    if (!storedUser) {
+      toast.error("User not logged in.");
+      return;
+    }
 
-formData.append("file", uploadFile);
-formData.append("userId", loggedUser.id);
+    const loggedUser: {
+      id?: string;
+      company?: string;
+    } = JSON.parse(storedUser);
+
+    if (!loggedUser.id) {
+      toast.error("User ID not found. Please login again.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", uploadFile);
+    formData.append("userId", loggedUser.id);
+
     const res = await fetch("/api/upload", {
       method: "POST",
       body: formData,
     });
 
-    console.log("Status:", res.status);
-
     const data = await res.json();
 
-    console.log("Response:", data);
+    console.log("Upload status:", res.status);
+    console.log("Upload response:", data);
 
-    setLoading(false);
-
-    if (res.ok) {
-      toast.success(data.message);
-    } else {
-      toast.error(data.message);
+    if (!res.ok) {
+      toast.error(data.message || "Upload failed.");
+      return;
     }
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err);
+
+    toast.success(data.message);
+
+    setFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  } catch (error) {
+    console.error("UPLOAD ERROR:", error);
     toast.error("Upload failed.");
+  } finally {
     setLoading(false);
   }
 }

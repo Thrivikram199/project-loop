@@ -5,6 +5,17 @@ export async function POST(req: Request) {
   try {
     const { userId } = await req.json();
 
+    if (!userId) {
+      return NextResponse.json(
+        {
+          message: "User ID is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -43,22 +54,22 @@ export async function POST(req: Request) {
       return NextResponse.json({
         recommendations: [
           "No customer feedback available yet.",
-          "Upload or add customer feedback to generate recommendations.",
+          "Add customer feedback to generate recommendations.",
         ],
       });
     }
 
     const positive = feedbacks.filter(
-  (f: typeof feedbacks[number]) => f.sentiment === "POSITIVE"
-).length;
+      (f) => f.sentiment === "POSITIVE"
+    ).length;
 
     const negative = feedbacks.filter(
-  (f: typeof feedbacks[number]) => f.sentiment === "NEGATIVE"
-).length;
+      (f) => f.sentiment === "NEGATIVE"
+    ).length;
 
-const neutral = feedbacks.filter(
-  (f: typeof feedbacks[number]) => f.sentiment === "NEUTRAL"
-).length;
+    const neutral = feedbacks.filter(
+      (f) => f.sentiment === "NEUTRAL"
+    ).length;
 
     const recommendations: string[] = [];
 
@@ -116,7 +127,7 @@ const neutral = feedbacks.filter(
       recommendations,
     });
   } catch (error) {
-    console.error(error);
+    console.error("AI recommendations error:", error);
 
     return NextResponse.json(
       {

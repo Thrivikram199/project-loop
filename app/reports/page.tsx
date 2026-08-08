@@ -58,9 +58,20 @@ const [loadingAI, setLoadingAI] = useState(false);
     try {
       setLoading(true);
 
-      const loggedUser = JSON.parse(
-  localStorage.getItem("loggedInUser") || "{}"
-);
+      
+const storedUser = localStorage.getItem("loggedInUser");
+
+if (!storedUser) {
+  throw new Error("User not logged in");
+}
+
+const loggedUser: {
+  id?: string;
+} = JSON.parse(storedUser);
+
+if (!loggedUser.id) {
+  throw new Error("User ID not found");
+}
 
 const dashboardRes = await fetch("/api/dashboard", {
   method: "POST",
@@ -72,17 +83,30 @@ const dashboardRes = await fetch("/api/dashboard", {
   }),
 });
 
+
+
+const responseText = await dashboardRes.text();
+
+console.log("Dashboard status:", dashboardRes.status);
+console.log("Dashboard response:", responseText);
+
 if (!dashboardRes.ok) {
-  throw new Error("Failed to load dashboard data");
+  throw new Error(
+    responseText ||
+      `Dashboard API failed with status ${dashboardRes.status}`
+  );
 }
 
-const dashboard = await dashboardRes.json();
+const dashboard = JSON.parse(responseText);
 
-      setStats(dashboard);
-
-  if (!loggedUser.id) {
-  throw new Error("User not logged in");
-}
+setStats({
+  total: dashboard.total ?? 0,
+  positive: dashboard.positive ?? 0,
+  negative: dashboard.negative ?? 0,
+  neutral: dashboard.neutral ?? 0,
+  topTheme: dashboard.topTheme ?? "General",
+  satisfaction: dashboard.satisfaction ?? 0,
+});
 
 
       const feedbackRes = await fetch("/api/feedback", {
@@ -252,7 +276,7 @@ const feedback = await feedbackRes.json();
 
     if (!res.ok) {
       console.error("AI Report Error:", data);
-      throw new Error(data.message || "AI request failed");
+      throw new Error(data.message || "Failed to load analytics");
     }
 
     setAiReport(data.report);

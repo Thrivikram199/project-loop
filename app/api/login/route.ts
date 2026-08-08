@@ -8,10 +8,20 @@ export async function GET() {
   });
 }
 
-
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+
+    if (!email || !password) {
+      return NextResponse.json(
+        {
+          message: "Email and password are required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
     const user = await prisma.user.findUnique({
       where: {
@@ -21,30 +31,30 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "Invalid email or password" },
-        { status: 401 }
+        {
+          message: "Invalid email or password",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    console.log("Entered password:", password);
-console.log("Stored password:", user.password);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
-const passwordMatch = await bcrypt.compare(
-  password,
-  user.password
-);
-
-console.log("Password Match:", passwordMatch);
-
-if (!passwordMatch) {
-  return NextResponse.json(
-    {
-      message: "Invalid email or password",
-      match: passwordMatch,
-    },
-    { status: 401 }
-  );
-}
+    if (!passwordMatch) {
+      return NextResponse.json(
+        {
+          message: "Invalid email or password",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
 
     return NextResponse.json({
       message: "Login Successful",
@@ -53,15 +63,19 @@ if (!passwordMatch) {
         name: user.name,
         email: user.email,
         role: user.role,
+        company: user.company,
       },
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
 
     return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
+      {
+        message: "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

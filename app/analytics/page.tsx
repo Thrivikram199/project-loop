@@ -73,35 +73,50 @@ const [loadingTrend, setLoadingTrend] =
   }, []);
 
   async function loadAnalytics() {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-     const loggedUser = JSON.parse(
-  localStorage.getItem("loggedInUser") || "{}"
-);
+    const storedUser = localStorage.getItem("loggedInUser");
 
-const res = await fetch("/api/dashboard", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    userId: loggedUser.id,
-  }),
-});
-      if (!res.ok) {
-  throw new Error("AI request failed");
+    if (!storedUser) {
+      throw new Error("User not logged in");
+    }
+
+    const loggedUser: {
+  id?: string;
+} = JSON.parse(storedUser);
+
+
+    if (!loggedUser.id) {
+  throw new Error("User ID not found");
 }
 
-      const data = await res.json();
+    const res = await fetch("/api/dashboard", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: loggedUser.id,
+      }),
+    });
 
-      setStats(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Dashboard API Error:", data);
+      throw new Error(
+        data.message || "Failed to load analytics"
+      );
     }
+
+    setStats(data);
+  } catch (error) {
+    console.error("Analytics error:", error);
+  } finally {
+    setLoading(false);
   }
+}
 
   if (loading) {
     return (
@@ -209,32 +224,66 @@ async function loadTrendAnalysis() {
   try {
     setLoadingTrend(true);
 
-    const loggedUser = JSON.parse(
-  localStorage.getItem("loggedInUser") || "{}"
-);
+    const storedUser = localStorage.getItem("loggedInUser");
 
-const res = await fetch("/api/ai-trends", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    userId: loggedUser.id,
-  }),
-});
+    if (!storedUser) {
+      throw new Error("User not logged in");
+    }
 
-const data = await res.json();
+    const loggedUser: {
+      id?: string;
+    } = JSON.parse(storedUser);
 
-    setTrendReport(data.trends);
+    if (!loggedUser.id) {
+      console.error("Invalid loggedInUser:", loggedUser);
+      throw new Error("User ID not found");
+    }
+
+    const res = await fetch("/api/ai-trends", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: loggedUser.id,
+      }),
+    });
+
+    const text = await res.text();
+
+    let data: {
+      trends?: {
+        title: string;
+        description: string;
+      }[];
+      message?: string;
+    } = {};
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = {
+        message: text || "Server returned an invalid response",
+      };
+    }
+
+    if (!res.ok) {
+      console.error("AI Trends API Error:", data);
+      throw new Error(
+        data.message || "Failed to load AI trend analysis"
+      );
+    }
+
+    setTrendReport(data.trends || []);
   } catch (error) {
-    console.error(error);
+    console.error("Trend analysis error:", error);
 
     setTrendReport([
-  {
-    title: "Error",
-    description: "Failed to load AI trend analysis.",
-  },
-]);
+      {
+        title: "Error",
+        description: "Failed to load AI trend analysis.",
+      },
+    ]);
   } finally {
     setLoadingTrend(false);
   }

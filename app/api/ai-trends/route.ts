@@ -5,6 +5,17 @@ export async function POST(req: Request) {
   try {
     const { userId } = await req.json();
 
+    if (!userId) {
+      return NextResponse.json(
+        {
+          message: "User ID is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
@@ -14,7 +25,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         {
-          message: "User not found",
+          message: "User not found.",
         },
         {
           status: 404,
@@ -23,21 +34,21 @@ export async function POST(req: Request) {
     }
 
     if (!user.company) {
-  return NextResponse.json(
-    {
-      message: "User company is not set.",
-    },
-    {
-      status: 400,
+      return NextResponse.json(
+        {
+          message: "User company is not set.",
+        },
+        {
+          status: 400,
+        }
+      );
     }
-  );
-}
 
-const feedbacks = await prisma.feedback.findMany({
-  where: {
-    company: user.company,
-  },
-});
+    const feedbacks = await prisma.feedback.findMany({
+      where: {
+        company: user.company,
+      },
+    });
 
     if (feedbacks.length === 0) {
       return NextResponse.json({
@@ -45,25 +56,22 @@ const feedbacks = await prisma.feedback.findMany({
           {
             title: "No Feedback Available",
             description:
-              "Upload customer feedback to generate trend analysis.",
+              "Add customer feedback to generate trend analysis.",
           },
         ],
       });
     }
 
     const positive = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "POSITIVE"
+      (f) => f.sentiment === "POSITIVE"
     ).length;
 
     const negative = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "NEGATIVE"
+      (f) => f.sentiment === "NEGATIVE"
     ).length;
 
     const neutral = feedbacks.filter(
-      (f: typeof feedbacks[number]) =>
-        f.sentiment === "NEUTRAL"
+      (f) => f.sentiment === "NEUTRAL"
     ).length;
 
     const trends = [
@@ -99,11 +107,15 @@ const feedbacks = await prisma.feedback.findMany({
       trends,
     });
   } catch (error) {
-    console.error(error);
+    console.error("AI Trends API error:", error);
 
     return NextResponse.json(
       {
         message: "Unable to generate trend analysis.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unknown server error",
       },
       {
         status: 500,

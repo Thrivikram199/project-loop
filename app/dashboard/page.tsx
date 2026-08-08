@@ -171,6 +171,10 @@ const data = await res.json();
   localStorage.getItem("loggedInUser") || "{}"
 );
 
+if (!loggedUser.id) {
+  throw new Error("User not logged in");
+}
+
 const res = await fetch("/api/ai-recommendations", {
   method: "POST",
   headers: {
@@ -180,7 +184,6 @@ const res = await fetch("/api/ai-recommendations", {
     userId: loggedUser.id,
   }),
 });
-
     const data = await res.json();
 
     setRecommendations(data.recommendations);
